@@ -1,0 +1,16 @@
+package com.blooddonation.app.Model;
+
+import lombok.Data;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Data
+public class Admin {
+  private UUID id;
+  private String firstName;
+  private String lastName;
+  private String email;
+  private String password;
+  private LocalDateTime createdAt;
+}
