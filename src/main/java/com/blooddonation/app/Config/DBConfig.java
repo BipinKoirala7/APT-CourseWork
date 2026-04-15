@@ -10,7 +10,7 @@ public class DBConfig {
   private static final String DB_PASSWORD = "postgres";
   private static final String url = "jdbc:postgresql://localhost:5432/" + DB_NAME;
 
-  private static Connection getConnection() throws ClassNotFoundException, SQLException {
+  public static Connection getConnection() throws ClassNotFoundException, SQLException {
     Class.forName("org.postgresql.jdbc");
     return DriverManager.getConnection(url, DB_USER, DB_PASSWORD);
   }
