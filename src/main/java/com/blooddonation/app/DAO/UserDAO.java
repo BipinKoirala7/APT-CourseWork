@@ -1,6 +1,7 @@
 package com.blooddonation.app.DAO;
 
 import com.blooddonation.app.Config.DBConfig;
+import com.blooddonation.app.Model.Role;
 import com.blooddonation.app.Model.User;
 
 import java.sql.Connection;
@@ -58,7 +59,7 @@ public class UserDAO {
     }
   }
 
-  public Optional<User> getUser(String userId) throws SQLException {
+  public Optional<User> getUser(String userId, Role role) throws SQLException {
     if (isConnectionError) {
       System.out.println("Connection Error");
       return Optional.empty();
@@ -69,9 +70,10 @@ public class UserDAO {
       return Optional.empty();
     }
 
-    String query = "SELECT * FROM users where id=?";
+    String query = "SELECT * FROM users where id=? AND role=?";
     try (PreparedStatement ps = connection.prepareStatement(query)) {
       ps.setString(1, userId);
+      ps.setString(2, role.toString());
 
       ResultSet rs = ps.executeQuery();
       if (!rs.next()) {
@@ -79,13 +81,15 @@ public class UserDAO {
         return Optional.empty();
       }
 
-      User user = new User();
-      user.setId(UUID.fromString(rs.getString("id")));
-      user.setFirstName(rs.getString("first_name"));
-      user.setLastName(rs.getString("last_name"));
-      user.setEmail(rs.getString("email"));
-      user.setPassword("password");
-      user.setCreatedAt(rs.getTimestamp("created_at").toInstant());
+      User user = new User(
+          UUID.fromString(rs.getString("id")),
+          rs.getString("first_name"),
+          rs.getString("last_name"),
+          Role.valueOf(rs.getString("role")),
+          rs.getString("email"),
+          "password",
+          rs.getTimestamp("created_at").toInstant()
+      );
 
       return Optional.of(user);
     }
