@@ -1,19 +1,22 @@
 package com.blooddonation.app.Model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Data
-abstract class Appointment {
-  protected UUID id;
-  protected UUID adminId;
-  protected UUID userid;
+@AllArgsConstructor
+public class Appointment {
+  private UUID id;
+  private UUID adminId;
+  private UUID userid;
+  private AppointmentType type;
   private BloodType bloodType;
   private Integer units;
-  protected LocalDateTime time;
-  protected AppointmentStatus status;
-  protected LocalDateTime createdAt;
-  protected LocalDateTime updatedAt;
+  private Instant time;
+  private AppointmentStatus status;
+  private Instant createdAt;
+  private Instant updatedAt;
 }
