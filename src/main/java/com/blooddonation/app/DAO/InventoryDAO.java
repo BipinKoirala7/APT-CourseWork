@@ -19,14 +19,20 @@ public class InventoryDAO {
   public InventoryDAO() {
     try {
       connection = DBConfig.getConnection();
-    } catch (SQLException | ClassNotFoundException e) {
       isConnectionError = false;
+    } catch (SQLException | ClassNotFoundException e) {
+      isConnectionError = true;
       System.out.println(e.getMessage());
       // Handle error here.
     }
   }
 
   public boolean addToInventory(Inventory inventory) {
+    if (isConnectionError) {
+      System.out.println("Connection Error");
+      return false;
+    }
+
     if (Objects.isNull(inventory)) {
       System.out.println("Inventory cannot be null");
       return false;
@@ -59,6 +65,11 @@ public class InventoryDAO {
   }
 
   public ArrayList<Inventory> getAllInventory() {
+    if (isConnectionError) {
+      System.out.println("Connection Error");
+      return null;
+    }
+
     String query = "SELECT * FROM inventory";
     ArrayList<Inventory> inventoryList = new ArrayList<>();
 
@@ -83,6 +94,16 @@ public class InventoryDAO {
   }
 
   public boolean deleteInventory(String userId) {
+    if (isConnectionError) {
+      System.out.println("Connection Error");
+      return false;
+    }
+
+    if (Objects.isNull(userId)) {
+      System.out.println("User ID cannot be null");
+      return false;
+    }
+
     String query = "DELETE FROM inventory WHERE id = ?";
     try (PreparedStatement ps = connection.prepareStatement(query)) {
       ps.setString(1, userId);

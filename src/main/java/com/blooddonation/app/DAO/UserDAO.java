@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 public class UserDAO {
@@ -18,14 +19,20 @@ public class UserDAO {
   public UserDAO() {
     try {
       connection = DBConfig.getConnection();
-    } catch (SQLException | ClassNotFoundException e) {
       isConnectionError = false;
+    } catch (SQLException | ClassNotFoundException e) {
+      isConnectionError = true;
       System.out.println(e.getMessage());
       // Handle error here.
     }
   }
 
   public boolean createUser(User user) throws SQLException {
+    if (isConnectionError) {
+      System.out.println("Connection Error");
+      return false;
+    }
+
     if (Objects.isNull(user)) {
       System.out.println("User cannot be null");
       return false;
@@ -51,10 +58,15 @@ public class UserDAO {
     }
   }
 
-  public User getUser(String userId) throws SQLException {
+  public Optional<User> getUser(String userId) throws SQLException {
+    if (isConnectionError) {
+      System.out.println("Connection Error");
+      return Optional.empty();
+    }
+
     if (Objects.isNull(userId)) {
       System.out.println("User ID cannot be null");
-      return null;
+      return Optional.empty();
     }
 
     String query = "SELECT * FROM users where id=?";
@@ -64,7 +76,7 @@ public class UserDAO {
       ResultSet rs = ps.executeQuery();
       if (!rs.next()) {
         System.out.println("User with given id doesn't exists");
-        return null;
+        return Optional.empty();
       }
 
       User user = new User();
@@ -75,11 +87,16 @@ public class UserDAO {
       user.setPassword("password");
       user.setCreatedAt(rs.getTimestamp("created_at").toInstant());
 
-      return user;
+      return Optional.of(user);
     }
   }
 
   public boolean updateUser(User updatedUser) throws SQLException {
+    if (isConnectionError) {
+      System.out.println("Connection Error");
+      return false;
+    }
+
     if (Objects.isNull(updatedUser)) {
       System.out.println("User cannot be null");
       return false;
@@ -106,6 +123,11 @@ public class UserDAO {
   }
 
   public boolean deleteUser(String userId) throws SQLException {
+    if (isConnectionError) {
+      System.out.println("Connection Error");
+      return false;
+    }
+
     if (Objects.isNull(userId)) {
       System.out.println("User ID cannot be null");
       return false;
