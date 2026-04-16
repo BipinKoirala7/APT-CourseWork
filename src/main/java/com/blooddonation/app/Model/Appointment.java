@@ -9,6 +9,9 @@ import java.util.UUID;
 abstract class Appointment {
   protected UUID id;
   protected UUID adminId;
+  protected UUID userid;
+  private BloodType bloodType;
+  private Integer units;
   protected LocalDateTime time;
   protected AppointmentStatus status;
   protected LocalDateTime createdAt;
