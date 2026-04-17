@@ -1,6 +1,7 @@
 package com.blooddonation.app.Controller;
 
 import com.blooddonation.app.DTO.UserCreateDTO;
+import com.blooddonation.app.DTO.UserUpdateDTO;
 import com.blooddonation.app.Model.Role;
 import com.blooddonation.app.Services.UserService;
 import jakarta.servlet.ServletException;
@@ -46,16 +47,18 @@ public class UserController extends HttpServlet {
           userService.registerUser(userCreateDTO, Role.USER);
         }
         case "update" -> {
+          String id = request.getParameter("id"); // try to get this from session for better security
           String firstName = request.getParameter("first_name");
           String lastName = request.getParameter("last_name");
           String email = request.getParameter("email");
           String password = request.getParameter("password");
 
-          // Handle user update logic
+          UserUpdateDTO userUpdateDTO = new UserUpdateDTO(id, firstName, lastName, email, password);
+          userService.updateUser(userUpdateDTO);
         }
         case "delete" -> {
           String userId = request.getParameter("userId");
-          // Handle user deletion logic
+          userService.deleteUser(userId);
         }
         default -> {
           // Handle unknown action

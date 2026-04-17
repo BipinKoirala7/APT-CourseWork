@@ -2,13 +2,12 @@ package com.blooddonation.app.DTO;
 
 import lombok.Getter;
 
-import java.util.UUID;
-
 @Getter
 public class UserUpdateDTO extends UserCreateDTO {
-  private UUID id;
+  private String id;
 
-  public UserUpdateDTO(String first_name, String last_name, String email, String password) {
+  public UserUpdateDTO(String id, String first_name, String last_name, String email, String password) {
+    this.id = id;
     super(first_name, last_name, email, password);
   }
 }

@@ -64,4 +64,14 @@ public class UserService {
 
     userDAO.updateUser(user);
   }
+
+  public void deleteUser(String userId) {
+    /*
+     * We need to log out the user after the user is deleted successfully
+     * We can do this by invalidating the user session after the user is deleted successfully
+     * We need to get the user id from session first and then proceed rather than excepting user id from client.
+     * */
+    if (Objects.isNull(userId)) throw new IllegalArgumentException("User ID cannot be null");
+    userDAO.deleteUser(userId);
+  }
 }
