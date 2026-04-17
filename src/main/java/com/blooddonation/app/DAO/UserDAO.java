@@ -83,6 +83,36 @@ public class UserDAO {
     }
   }
 
+  public Optional<User> getUserByEmail(String email) {
+    if (isConnectionError) throw new DatabaseConnection("Database Connection Error");
+    if (Objects.isNull(email)) throw new IllegalArgumentException("Email cannot be null");
+
+    String query = "SELECT * FROM users WHERE email=?";
+    try (PreparedStatement ps = connection.prepareStatement(query)) {
+      ps.setString(1, email);
+
+      ResultSet rs = ps.executeQuery();
+      if (!rs.next()) {
+        System.out.println("User with given email doesn't exists");
+        return Optional.empty();
+      }
+
+      User user = new User(
+          UUID.fromString(rs.getString("id")),
+          rs.getString("first_name"),
+          rs.getString("last_name"),
+          Role.valueOf(rs.getString("role")),
+          rs.getString("email"),
+          "password",
+          rs.getTimestamp("created_at").toInstant()
+      );
+
+      return Optional.of(user);
+    } catch (SQLException e) {
+      throw new DatabaseConnection("Database Connection Error: " + e.getMessage());
+    }
+  }
+
   public void updateUser(User updatedUser) {
     if (isConnectionError) throw new DatabaseConnection("Database Connection Error");
     if (Objects.isNull(updatedUser)) throw new IllegalArgumentException("Updated user cannot be null");

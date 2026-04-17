@@ -1,6 +1,7 @@
 package com.blooddonation.app.Controller;
 
 import com.blooddonation.app.DTO.UserCreateDTO;
+import com.blooddonation.app.DTO.UserLoginDTO;
 import com.blooddonation.app.DTO.UserUpdateDTO;
 import com.blooddonation.app.Model.Role;
 import com.blooddonation.app.Services.UserService;
@@ -46,9 +47,19 @@ public class UserController extends HttpServlet {
           UserCreateDTO userCreateDTO = new UserCreateDTO(firstName, lastName, email, password);
           userService.registerUser(userCreateDTO, Role.USER);
         }
-        case "login" -> {
+        case "login-user" -> {
           String email = request.getParameter("email");
           String password = request.getParameter("password");
+
+          UserLoginDTO userLoginDTO = new UserLoginDTO(email, password);
+          userService.loginUser(userLoginDTO);
+        }
+        case "login-admin" -> {
+          String email = request.getParameter("email");
+          String password = request.getParameter("password");
+
+          UserLoginDTO userLoginDTO = new UserLoginDTO(email, password);
+          userService.loginUser(userLoginDTO);
         }
         case "update" -> {
           String id = request.getParameter("id"); // try to get this from session for better security
@@ -68,7 +79,7 @@ public class UserController extends HttpServlet {
           // Handle unknown action
         }
       }
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       e.printStackTrace();
       // Handle exceptions (e.g., log the error, send an error response)
     }

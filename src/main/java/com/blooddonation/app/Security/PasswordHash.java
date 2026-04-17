@@ -9,7 +9,7 @@ public class PasswordHash {
     return BCrypt.hashpw(password, BCrypt.gensalt(salt));
   }
 
-  public boolean checkIfPasswordsMatch(String hashPassword, String typedPassword) {
+  public boolean verifyPassword(String hashPassword, String typedPassword) {
     return BCrypt.checkpw(hashPassword, typedPassword);
   }
 }

@@ -2,6 +2,7 @@ package com.blooddonation.app.Services;
 
 import com.blooddonation.app.DAO.UserDAO;
 import com.blooddonation.app.DTO.UserCreateDTO;
+import com.blooddonation.app.DTO.UserLoginDTO;
 import com.blooddonation.app.DTO.UserUpdateDTO;
 import com.blooddonation.app.Model.Role;
 import com.blooddonation.app.Model.User;
@@ -42,8 +43,17 @@ public class UserService {
     userDAO.createUser(user);
   }
 
-  public void loginUser() {
+  public void loginUser(UserLoginDTO userLoginDTO) {
+    if (Objects.isNull(userLoginDTO)) throw new IllegalArgumentException("UserLoginDTO cannot be null");
+    validator.validate(userLoginDTO);
 
+    User user = userDAO.getUserByEmail(userLoginDTO.getEmail())
+        .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+    if (!passwordHash.verifyPassword(userLoginDTO.getPassword(), user.getPassword())) {
+      throw new IllegalArgumentException("Invalid email or password");
+    }
+
+    // Controller should put the user info in the session after successful login
   }
 
   public User getUser(String userId) {
