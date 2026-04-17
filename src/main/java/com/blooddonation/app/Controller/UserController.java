@@ -1,6 +1,7 @@
 package com.blooddonation.app.Controller;
 
 import com.blooddonation.app.DTO.UserCreateDTO;
+import com.blooddonation.app.Model.Role;
 import com.blooddonation.app.Services.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -32,7 +33,7 @@ public class UserController extends HttpServlet {
         String password = request.getParameter("password");
 
         UserCreateDTO userCreateDTO = new UserCreateDTO(firstName, lastName, email, password);
-        userService.createAdmin(userCreateDTO);
+        userService.registerUser(userCreateDTO, Role.ADMIN);
       }
       case "create-user" -> {
         String firstName = request.getParameter("first_name");
@@ -41,7 +42,7 @@ public class UserController extends HttpServlet {
         String password = request.getParameter("password");
 
         UserCreateDTO userCreateDTO = new UserCreateDTO(firstName, lastName, email, password);
-        userService.createUser(userCreateDTO);
+        userService.registerUser(userCreateDTO, Role.USER);
       }
       case "update" -> {
         String firstName = request.getParameter("first_name");

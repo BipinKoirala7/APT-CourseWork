@@ -28,7 +28,7 @@ public class UserDAO {
     }
   }
 
-  public boolean createUser(User user) throws SQLException {
+  public boolean createUser(User user) {
     if (isConnectionError) {
       System.out.println("Connection Error");
       return false;
@@ -56,10 +56,13 @@ public class UserDAO {
 
       System.out.println("Insert Successfully");
       return true;
+    } catch (SQLException e) {
+      System.out.println("Insert Failed");
+      return false;
     }
   }
 
-  public Optional<User> getUser(String userId, Role role) throws SQLException {
+  public Optional<User> getUser(String userId, Role role) {
     if (isConnectionError) {
       System.out.println("Connection Error");
       return Optional.empty();
@@ -92,6 +95,9 @@ public class UserDAO {
       );
 
       return Optional.of(user);
+    } catch (SQLException e) {
+      System.out.println("Insert Failed");
+      return Optional.empty();
     }
   }
 
