@@ -46,6 +46,10 @@ public class UserController extends HttpServlet {
           UserCreateDTO userCreateDTO = new UserCreateDTO(firstName, lastName, email, password);
           userService.registerUser(userCreateDTO, Role.USER);
         }
+        case "login" -> {
+          String email = request.getParameter("email");
+          String password = request.getParameter("password");
+        }
         case "update" -> {
           String id = request.getParameter("id"); // try to get this from session for better security
           String firstName = request.getParameter("first_name");
