@@ -106,7 +106,7 @@ public class UserDAO {
       return false;
     }
 
-    String query = "UPDATE users SET first_name=?, last_name=?, email=?, password=? WHERE user_id=?";
+    String query = "UPDATE users SET first_name=?, last_name=?, email=?, password=? WHERE id=?";
 
     try (PreparedStatement ps = connection.prepareStatement(query)) {
       ps.setString(1, updatedUser.getFirstName());
@@ -137,7 +137,7 @@ public class UserDAO {
       return false;
     }
 
-    String query = "DELETE FROM users WHERE user_id=?";
+    String query = "DELETE FROM users WHERE id=?";
     try (PreparedStatement ps = connection.prepareStatement(query)) {
       ps.setString(1, userId);
 
