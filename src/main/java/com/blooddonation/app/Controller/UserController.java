@@ -4,6 +4,7 @@ import com.blooddonation.app.DTO.UserCreateDTO;
 import com.blooddonation.app.DTO.UserLoginDTO;
 import com.blooddonation.app.DTO.UserUpdateDTO;
 import com.blooddonation.app.Model.Role;
+import com.blooddonation.app.Model.User;
 import com.blooddonation.app.Services.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -18,7 +19,16 @@ public class UserController extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    // Handle GET requests for user-related operations (e.g., fetching user details)
+    try {
+      UserService userService = new UserService();
+      request.setCharacterEncoding("UTF-8");
+      String action = request.getParameter("action");
+
+      User user = userService.getUser(request.getParameter("userId")); // try to get this from session for better security
+    } catch (RuntimeException e) {
+      e.printStackTrace();
+      // Handle exceptions (e.g., log the error, send an error response)
+    }
   }
 
   @Override
@@ -62,6 +72,7 @@ public class UserController extends HttpServlet {
           userService.loginUser(userLoginDTO);
         }
         case "update" -> {
+          // Make it a put request rather than a post request
           String id = request.getParameter("id"); // try to get this from session for better security
           String firstName = request.getParameter("first_name");
           String lastName = request.getParameter("last_name");

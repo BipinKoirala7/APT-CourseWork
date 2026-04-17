@@ -1,6 +1,8 @@
 package com.blooddonation.app.DAO;
 
 import com.blooddonation.app.Config.DBConfig;
+import com.blooddonation.app.Exception.DatabaseConnection;
+import com.blooddonation.app.Exception.QueryExecutionException;
 import com.blooddonation.app.Model.Appointment;
 import com.blooddonation.app.Model.AppointmentStatus;
 import com.blooddonation.app.Model.AppointmentType;
@@ -29,21 +31,13 @@ public class AppointmentDAO {
       isConnectionError = false;
     } catch (SQLException | ClassNotFoundException e) {
       isConnectionError = true;
-      System.out.println(e.getMessage());
-      // Handle error here.
+      throw new DatabaseConnection("Database Connection Error: " + e.getMessage());
     }
   }
 
-  public boolean createAppointment(Appointment appointment) {
-    if (isConnectionError) {
-      System.out.println("Connection Error");
-      return false;
-    }
-
-    if (appointment == null) {
-      System.out.println("Appointment cannot be null");
-      return false;
-    }
+  public void createAppointment(Appointment appointment) {
+    if (isConnectionError) throw new DatabaseConnection("Database Connection Error");
+    if (appointment == null) throw new IllegalArgumentException("Appointment cannot be null");
 
     String query = "INSERT INTO appointment (id, adminId, userId, type, blood_type, units, time, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -60,26 +54,17 @@ public class AppointmentDAO {
       ps.setObject(10, appointment.getUpdatedAt());
 
       int rowsAffected = ps.executeUpdate();
-
-      if (rowsAffected == 0) {
-        System.out.println("Insert Failed");
-        return false;
-      }
+      if (rowsAffected == 0) throw new QueryExecutionException("Appointment does not exist");
 
       System.out.println("Insert Successfully");
     } catch (SQLException e) {
-      System.out.println(e.getMessage());
-      return false;
+      throw new DatabaseConnection("Database Connection Error: " + e.getMessage());
     }
 
-    return true;
   }
 
   public ArrayList<Appointment> getAllAppointments() {
-    if (isConnectionError) {
-      System.out.println("Connection Error");
-      return null;
-    }
+    if (isConnectionError) throw new DatabaseConnection("Database Connection Error");
 
     ArrayList<Appointment> appointments = new ArrayList<>();
     String query = "SELECT * FROM appointment";
@@ -105,22 +90,14 @@ public class AppointmentDAO {
       }
       System.out.println("Fetch Successfully");
     } catch (SQLException e) {
-      System.out.println(e.getMessage());
-      return null;
+      throw new DatabaseConnection("Database Connection Error: " + e.getMessage());
     }
     return appointments;
   }
 
-  public boolean updateAppointment(Appointment updatedAppointment) {
-    if (isConnectionError) {
-      System.out.println("Connection Error");
-      return false;
-    }
-
-    if (updatedAppointment == null) {
-      System.out.println("Appointment cannot be null");
-      return false;
-    }
+  public void updateAppointment(Appointment updatedAppointment) {
+    if (isConnectionError) throw new DatabaseConnection("Database Connection Error");
+    if (updatedAppointment == null) throw new IllegalArgumentException("Appointment cannot be null");
 
     String query = "UPDATE appointments SET adminId = ?, userId = ?, type = ?, blood_type = ?, units = ?, time = ?, status = ?, created_at = ?, updated_at = ? WHERE id = ?";
 
@@ -138,30 +115,18 @@ public class AppointmentDAO {
 
       int rowsAffected = ps.executeUpdate();
 
-      if (rowsAffected == 0) {
-        System.out.println("Update Failed");
-        return false;
-      }
+      if (rowsAffected == 0) throw new QueryExecutionException("Failed to update appointment");
 
       System.out.println("Update Successfully");
     } catch (SQLException e) {
-      System.out.println(e.getMessage());
-      return false;
+      throw new DatabaseConnection("Database Connection Error: " + e.getMessage());
     }
-
-    return true;
   }
 
-  public boolean deleteAppointment(String appointmentId) {
-    if (isConnectionError) {
-      System.out.println("Connection Error");
-      return false;
-    }
-
-    if (appointmentId == null || appointmentId.isBlank()) {
-      System.out.println("Appointment ID cannot be null or empty");
-      return false;
-    }
+  public void deleteAppointment(String appointmentId) {
+    if (isConnectionError) throw new DatabaseConnection("Database Connection Error");
+    if (appointmentId == null || appointmentId.isBlank())
+      throw new IllegalArgumentException("Appointment ID cannot be null or blank");
 
     String query = "DELETE FROM appointments WHERE id = ?";
 
@@ -169,18 +134,11 @@ public class AppointmentDAO {
       ps.setString(1, appointmentId);
 
       int rowsAffected = ps.executeUpdate();
-
-      if (rowsAffected == 0) {
-        System.out.println("Delete Failed");
-        return false;
-      }
+      if (rowsAffected == 0) throw new QueryExecutionException("Failed to delete appointment from database");
 
       System.out.println("Delete Successfully");
     } catch (SQLException e) {
-      System.out.println(e.getMessage());
-      return false;
+      throw new DatabaseConnection("Database Connection Error: " + e.getMessage());
     }
-
-    return true;
   }
 }

@@ -1,6 +1,8 @@
 package com.blooddonation.app.DAO;
 
 import com.blooddonation.app.Config.DBConfig;
+import com.blooddonation.app.Exception.DatabaseConnection;
+import com.blooddonation.app.Exception.QueryExecutionException;
 import com.blooddonation.app.Model.BloodType;
 import com.blooddonation.app.Model.Inventory;
 
@@ -13,7 +15,7 @@ import java.util.Objects;
 
 public class InventoryDAO {
 
-  private Connection connection;
+  private final Connection connection;
   private boolean isConnectionError;
 
   public InventoryDAO() {
@@ -23,20 +25,13 @@ public class InventoryDAO {
     } catch (SQLException | ClassNotFoundException e) {
       isConnectionError = true;
       System.out.println(e.getMessage());
-      // Handle error here.
+      throw new DatabaseConnection("Database Connection Error: " + e.getMessage());
     }
   }
 
-  public boolean addToInventory(Inventory inventory) {
-    if (isConnectionError) {
-      System.out.println("Connection Error");
-      return false;
-    }
-
-    if (Objects.isNull(inventory)) {
-      System.out.println("Inventory cannot be null");
-      return false;
-    }
+  public void addToInventory(Inventory inventory) {
+    if (isConnectionError) throw new DatabaseConnection("Database Connection Error");
+    if (Objects.isNull(inventory)) throw new IllegalArgumentException("Inventory cannot be null");
 
     String query = "INSERT INTO inventory (id, donorId, units, bloodType, expiry_date, created_at) VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -50,25 +45,16 @@ public class InventoryDAO {
 
       int rowsAffected = ps.executeUpdate();
 
-      if (rowsAffected == 0) {
-        System.out.println("Insert Failed");
-        return false;
-      }
+      if (rowsAffected == 0) throw new QueryExecutionException("Inventory could not be added");
 
       System.out.println("Insert Successfully");
     } catch (SQLException e) {
-      System.out.println(e.getMessage());
-      return false;
+      throw new DatabaseConnection("Database Connection Error: " + e.getMessage());
     }
-
-    return true;
   }
 
   public ArrayList<Inventory> getAllInventory() {
-    if (isConnectionError) {
-      System.out.println("Connection Error");
-      return null;
-    }
+    if (isConnectionError) throw new DatabaseConnection("Database Connection Error");
 
     String query = "SELECT * FROM inventory";
     ArrayList<Inventory> inventoryList = new ArrayList<>();
@@ -87,31 +73,23 @@ public class InventoryDAO {
         inventoryList.add(inventory);
       }
     } catch (SQLException e) {
-      System.out.println(e.getMessage());
-      return null;
+      throw new DatabaseConnection("Database Connection Error: " + e.getMessage());
     }
     return inventoryList;
   }
 
-  public boolean deleteInventory(String userId) {
-    if (isConnectionError) {
-      System.out.println("Connection Error");
-      return false;
-    }
-
-    if (Objects.isNull(userId)) {
-      System.out.println("User ID cannot be null");
-      return false;
-    }
+  public void deleteInventory(String userId) {
+    if (isConnectionError) throw new DatabaseConnection("Database Connection Error");
+    if (Objects.isNull(userId)) throw new IllegalArgumentException("UserId cannot be null");
 
     String query = "DELETE FROM inventory WHERE id = ?";
     try (PreparedStatement ps = connection.prepareStatement(query)) {
       ps.setString(1, userId);
       int rowsAffected = ps.executeUpdate();
-      return rowsAffected > 0;
+      if (rowsAffected == 0) throw new QueryExecutionException("Inventory could not be deleted");
+      System.out.println("Delete Successfully");
     } catch (SQLException e) {
-      System.out.println(e.getMessage());
-      return false;
+      throw new DatabaseConnection("Database Connection Error: " + e.getMessage());
     }
   }
 }
