@@ -83,7 +83,7 @@ public class UserDAO {
     }
   }
 
-  public boolean updateUser(User updatedUser) {
+  public void updateUser(User updatedUser) {
     if (isConnectionError) throw new DatabaseConnection("Database Connection Error");
     if (Objects.isNull(updatedUser)) throw new IllegalArgumentException("Updated user cannot be null");
 
@@ -97,19 +97,15 @@ public class UserDAO {
       ps.setString(5, String.valueOf(updatedUser.getId()));
 
       int rowsAffected = ps.executeUpdate();
-      if (rowsAffected == 0) {
-        System.out.println("Update Failed");
-        return false;
-      }
+      if (rowsAffected == 0) throw new QueryExecutionException("Failed to update user in database");
 
-      System.out.println("Inset Successfully");
-      return true;
+      System.out.println("Update Successfully");
     } catch (SQLException e) {
       throw new DatabaseConnection("Database Connection Error: " + e.getMessage());
     }
   }
 
-  public boolean deleteUser(String userId) {
+  public void deleteUser(String userId) {
     if (isConnectionError) throw new DatabaseConnection("Database Connection Error");
     if (Objects.isNull(userId)) throw new IllegalArgumentException("User ID cannot be null");
 
@@ -121,7 +117,6 @@ public class UserDAO {
       if (rowsAffected == 0) throw new QueryExecutionException("Failed to delete user from database");
 
       System.out.println("Delete Successfully");
-      return true;
     } catch (SQLException e) {
       throw new DatabaseConnection("Database Connection Error: " + e.getMessage());
     }
