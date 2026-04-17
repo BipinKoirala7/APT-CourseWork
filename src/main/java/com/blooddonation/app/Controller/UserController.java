@@ -21,44 +21,49 @@ public class UserController extends HttpServlet {
 
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    UserService userService = new UserService();
-    request.setCharacterEncoding("UTF-8");
-    String action = request.getParameter("action");
+    try {
+      UserService userService = new UserService();
+      request.setCharacterEncoding("UTF-8");
+      String action = request.getParameter("action");
 
-    switch (action) {
-      case "create-admin" -> {
-        String firstName = request.getParameter("first_name");
-        String lastName = request.getParameter("last_name");
-        String email = request.getParameter("email");
-        String password = request.getParameter("password");
+      switch (action) {
+        case "create-admin" -> {
+          String firstName = request.getParameter("first_name");
+          String lastName = request.getParameter("last_name");
+          String email = request.getParameter("email");
+          String password = request.getParameter("password");
 
-        UserCreateDTO userCreateDTO = new UserCreateDTO(firstName, lastName, email, password);
-        userService.registerUser(userCreateDTO, Role.ADMIN);
-      }
-      case "create-user" -> {
-        String firstName = request.getParameter("first_name");
-        String lastName = request.getParameter("last_name");
-        String email = request.getParameter("email");
-        String password = request.getParameter("password");
+          UserCreateDTO userCreateDTO = new UserCreateDTO(firstName, lastName, email, password);
+          userService.registerUser(userCreateDTO, Role.ADMIN);
+        }
+        case "create-user" -> {
+          String firstName = request.getParameter("first_name");
+          String lastName = request.getParameter("last_name");
+          String email = request.getParameter("email");
+          String password = request.getParameter("password");
 
-        UserCreateDTO userCreateDTO = new UserCreateDTO(firstName, lastName, email, password);
-        userService.registerUser(userCreateDTO, Role.USER);
-      }
-      case "update" -> {
-        String firstName = request.getParameter("first_name");
-        String lastName = request.getParameter("last_name");
-        String email = request.getParameter("email");
-        String password = request.getParameter("password");
+          UserCreateDTO userCreateDTO = new UserCreateDTO(firstName, lastName, email, password);
+          userService.registerUser(userCreateDTO, Role.USER);
+        }
+        case "update" -> {
+          String firstName = request.getParameter("first_name");
+          String lastName = request.getParameter("last_name");
+          String email = request.getParameter("email");
+          String password = request.getParameter("password");
 
-        // Handle user update logic
+          // Handle user update logic
+        }
+        case "delete" -> {
+          String userId = request.getParameter("userId");
+          // Handle user deletion logic
+        }
+        default -> {
+          // Handle unknown action
+        }
       }
-      case "delete" -> {
-        String userId = request.getParameter("userId");
-        // Handle user deletion logic
-      }
-      default -> {
-        // Handle unknown action
-      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      // Handle exceptions (e.g., log the error, send an error response)
     }
   }
 }

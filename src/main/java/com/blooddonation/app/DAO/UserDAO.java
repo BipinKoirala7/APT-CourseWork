@@ -1,6 +1,8 @@
 package com.blooddonation.app.DAO;
 
 import com.blooddonation.app.Config.DBConfig;
+import com.blooddonation.app.Exception.DatabaseConnection;
+import com.blooddonation.app.Exception.QueryExecutionException;
 import com.blooddonation.app.Model.Role;
 import com.blooddonation.app.Model.User;
 
@@ -28,16 +30,10 @@ public class UserDAO {
     }
   }
 
-  public boolean createUser(User user) {
-    if (isConnectionError) {
-      System.out.println("Connection Error");
-      return false;
-    }
+  public void createUser(User user) {
+    if (isConnectionError) throw new DatabaseConnection("Database Connection Error");
+    if (Objects.isNull(user)) throw new IllegalArgumentException("User cannot be null");
 
-    if (Objects.isNull(user)) {
-      System.out.println("User cannot be null");
-      return false;
-    }
     String query = "INSERT INTO users (id, first_name, last_name, email, password, created_at) VALUES (?, ?, ?, ?, ?, ?)";
     try (PreparedStatement ps = connection.prepareStatement(query)) {
       ps.setString(1, String.valueOf(user.getId()));
@@ -49,34 +45,21 @@ public class UserDAO {
 
       int rowsAffected = ps.executeUpdate();
 
-      if (rowsAffected == 0) {
-        System.out.println("Insert Failed");
-        return false;
-      }
+      if (rowsAffected == 0) throw new QueryExecutionException("Failed to insert user into database");
 
       System.out.println("Insert Successfully");
-      return true;
     } catch (SQLException e) {
-      System.out.println("Insert Failed");
-      return false;
+      throw new DatabaseConnection("Database Connection Error: " + e.getMessage());
     }
   }
 
-  public Optional<User> getUser(String userId, Role role) {
-    if (isConnectionError) {
-      System.out.println("Connection Error");
-      return Optional.empty();
-    }
+  public Optional<User> getUser(String userId) {
+    if (isConnectionError) throw new DatabaseConnection("Database Connection Error");
+    if (Objects.isNull(userId)) throw new IllegalArgumentException("User ID cannot be null");
 
-    if (Objects.isNull(userId)) {
-      System.out.println("User ID cannot be null");
-      return Optional.empty();
-    }
-
-    String query = "SELECT * FROM users where id=? AND role=?";
+    String query = "SELECT * FRrIOM users where id=?";
     try (PreparedStatement ps = connection.prepareStatement(query)) {
       ps.setString(1, userId);
-      ps.setString(2, role.toString());
 
       ResultSet rs = ps.executeQuery();
       if (!rs.next()) {
@@ -96,21 +79,13 @@ public class UserDAO {
 
       return Optional.of(user);
     } catch (SQLException e) {
-      System.out.println("Insert Failed");
-      return Optional.empty();
+      throw new DatabaseConnection("Database Connection Error: " + e.getMessage());
     }
   }
 
-  public boolean updateUser(User updatedUser) throws SQLException {
-    if (isConnectionError) {
-      System.out.println("Connection Error");
-      return false;
-    }
-
-    if (Objects.isNull(updatedUser)) {
-      System.out.println("User cannot be null");
-      return false;
-    }
+  public boolean updateUser(User updatedUser) {
+    if (isConnectionError) throw new DatabaseConnection("Database Connection Error");
+    if (Objects.isNull(updatedUser)) throw new IllegalArgumentException("Updated user cannot be null");
 
     String query = "UPDATE users SET first_name=?, last_name=?, email=?, password=? WHERE id=?";
 
@@ -129,32 +104,26 @@ public class UserDAO {
 
       System.out.println("Inset Successfully");
       return true;
+    } catch (SQLException e) {
+      throw new DatabaseConnection("Database Connection Error: " + e.getMessage());
     }
   }
 
-  public boolean deleteUser(String userId) throws SQLException {
-    if (isConnectionError) {
-      System.out.println("Connection Error");
-      return false;
-    }
-
-    if (Objects.isNull(userId)) {
-      System.out.println("User ID cannot be null");
-      return false;
-    }
+  public boolean deleteUser(String userId) {
+    if (isConnectionError) throw new DatabaseConnection("Database Connection Error");
+    if (Objects.isNull(userId)) throw new IllegalArgumentException("User ID cannot be null");
 
     String query = "DELETE FROM users WHERE id=?";
     try (PreparedStatement ps = connection.prepareStatement(query)) {
       ps.setString(1, userId);
-
       int rowsAffected = ps.executeUpdate();
-      if (rowsAffected == 0) {
-        System.out.println("Delete Failed");
-        return false;
-      }
+
+      if (rowsAffected == 0) throw new QueryExecutionException("Failed to delete user from database");
 
       System.out.println("Delete Successfully");
       return true;
+    } catch (SQLException e) {
+      throw new DatabaseConnection("Database Connection Error: " + e.getMessage());
     }
   }
 }
