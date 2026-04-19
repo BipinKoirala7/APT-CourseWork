@@ -11,7 +11,7 @@ import java.util.UUID;
 public class Appointment {
   private UUID id;
   private UUID adminId;
-  private UUID userid;
+  private UUID userId;
   private AppointmentType type;
   private BloodType bloodType;
   private Integer units;

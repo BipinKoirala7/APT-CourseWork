@@ -44,7 +44,7 @@ public class AppointmentDAO {
     try (PreparedStatement ps = connection.prepareStatement(query)) {
       ps.setString(1, String.valueOf(appointment.getId()));
       ps.setString(2, null);
-      ps.setString(3, String.valueOf(appointment.getUserid()));
+      ps.setString(3, String.valueOf(appointment.getUserId()));
       ps.setString(4, appointment.getType().name());
       ps.setString(5, appointment.getBloodType().name());
       ps.setInt(6, appointment.getUnits());
@@ -60,7 +60,6 @@ public class AppointmentDAO {
     } catch (SQLException e) {
       throw new DatabaseConnection("Database Connection Error: " + e.getMessage());
     }
-
   }
 
   public ArrayList<Appointment> getAllAppointments() {
@@ -95,6 +94,31 @@ public class AppointmentDAO {
     return appointments;
   }
 
+  //  Strictly for accepting appointment by admin
+  public void updateAppointmentStatus(String id, String adminId, AppointmentStatus status) {
+    if (isConnectionError) throw new DatabaseConnection("Database Connection Error");
+    if (id == null || id.isBlank()) throw new IllegalArgumentException("Appointment ID cannot be null or blank");
+    if (adminId == null || adminId.isBlank()) throw new IllegalArgumentException("Admin ID cannot be null or blank");
+    if (status == null) throw new IllegalArgumentException("Status cannot be null");
+
+    String query = "UPDATE appointments SET adminId = ?, status = ?, updated_at = ? WHERE id = ?";
+
+    try (PreparedStatement ps = connection.prepareStatement(query)) {
+      ps.setString(1, adminId);
+      ps.setString(2, status.name());
+      ps.setObject(3, Instant.now());
+      ps.setString(4, id);
+
+      int rowsAffected = ps.executeUpdate();
+      if (rowsAffected == 0) throw new QueryExecutionException("Failed to update appointment status");
+
+      System.out.println("Status Update Successfully");
+    } catch (SQLException e) {
+      throw new DatabaseConnection("Database Connection Error: " + e.getMessage());
+    }
+
+  }
+
   public void updateAppointment(Appointment updatedAppointment) {
     if (isConnectionError) throw new DatabaseConnection("Database Connection Error");
     if (updatedAppointment == null) throw new IllegalArgumentException("Appointment cannot be null");
@@ -103,7 +127,7 @@ public class AppointmentDAO {
 
     try (PreparedStatement ps = connection.prepareStatement(query)) {
       ps.setString(1, String.valueOf(updatedAppointment.getAdminId()));
-      ps.setString(2, String.valueOf(updatedAppointment.getUserid()));
+      ps.setString(2, String.valueOf(updatedAppointment.getUserId()));
       ps.setString(3, updatedAppointment.getType().name());
       ps.setString(4, updatedAppointment.getBloodType().name());
       ps.setInt(5, updatedAppointment.getUnits());
