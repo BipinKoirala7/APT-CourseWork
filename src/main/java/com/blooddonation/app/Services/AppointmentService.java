@@ -64,4 +64,11 @@ public class AppointmentService {
 
     appointmentDAO.updateAppointmentStatus(appointmentId, AppointmentStatus.COMPLETED);
   }
+
+  public void deleteAppointment(String id) {
+    if (Objects.isNull(id) || id.isBlank())
+      throw new IllegalArgumentException("Appointment ID cannot be null or blank");
+
+    appointmentDAO.deleteAppointment(id);
+  }
 }

@@ -169,15 +169,15 @@ public class AppointmentDAO {
     }
   }
 
-  public void deleteAppointment(String appointmentId) {
+  public void deleteAppointment(String id) {
     if (isConnectionError) throw new DatabaseConnection("Database Connection Error");
-    if (appointmentId == null || appointmentId.isBlank())
+    if (id == null || id.isBlank())
       throw new IllegalArgumentException("Appointment ID cannot be null or blank");
 
     String query = "DELETE FROM appointments WHERE id = ?";
 
     try (PreparedStatement ps = connection.prepareStatement(query)) {
-      ps.setString(1, appointmentId);
+      ps.setString(1, id);
 
       int rowsAffected = ps.executeUpdate();
       if (rowsAffected == 0) throw new QueryExecutionException("Failed to delete appointment from database");
