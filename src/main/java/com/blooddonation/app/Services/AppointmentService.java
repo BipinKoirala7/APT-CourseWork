@@ -7,6 +7,7 @@ import com.blooddonation.app.Model.AppointmentStatus;
 import com.blooddonation.app.Security.Validator;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -15,7 +16,7 @@ public class AppointmentService {
   private final Validator validator;
 
   public AppointmentService(AppointmentDAO appointmentDAO) {
-    this.appointmentDAO = appointmentDAO;
+    this.appointmentDAO = new AppointmentDAO();
     this.validator = new Validator();
   }
 
@@ -41,12 +42,26 @@ public class AppointmentService {
     appointmentDAO.createAppointment(appointment);
   }
 
-  public void approveAppointment(String appointmentId, String adminId) {
-    if (Objects.isNull(appointmentId) || appointmentId.isBlank())
+  public ArrayList<Appointment> getAppointmentsByUserId(String userId) {
+    if (Objects.isNull(userId) || userId.isBlank())
+      throw new IllegalArgumentException("User ID cannot be null or blank");
+
+    return appointmentDAO.getAllAppointmentsByUserId(userId);
+  }
+
+  public void approveAppointment(String id, String adminId) {
+    if (Objects.isNull(id) || id.isBlank())
       throw new IllegalArgumentException("Appointment ID cannot be null or blank");
     if (Objects.isNull(adminId) || adminId.isBlank())
       throw new IllegalArgumentException("Admin ID cannot be null or blank");
 
-    appointmentDAO.updateAppointmentStatus(appointmentId, adminId, AppointmentStatus.APPROVED);
+    appointmentDAO.updateAppointmentStatus(id, adminId, AppointmentStatus.APPROVED);
+  }
+
+  public void completeAppointment(String appointmentId) {
+    if (Objects.isNull(appointmentId) || appointmentId.isBlank())
+      throw new IllegalArgumentException("Appointment ID cannot be null or blank");
+
+    appointmentDAO.updateAppointmentStatus(appointmentId, AppointmentStatus.COMPLETED);
   }
 }

@@ -62,13 +62,15 @@ public class AppointmentDAO {
     }
   }
 
-  public ArrayList<Appointment> getAllAppointments() {
+  public ArrayList<Appointment> getAllAppointmentsByUserId(String userId) {
     if (isConnectionError) throw new DatabaseConnection("Database Connection Error");
+    if (userId == null || userId.isBlank()) throw new IllegalArgumentException("userId cannot be null");
 
     ArrayList<Appointment> appointments = new ArrayList<>();
-    String query = "SELECT * FROM appointment";
+    String query = "SELECT * FROM appointment where userId = ?";
 
     try (PreparedStatement ps = connection.prepareStatement(query)) {
+      ps.setString(1, userId);
       ResultSet rs = ps.executeQuery();
 
       while (rs.next()) {
@@ -116,7 +118,27 @@ public class AppointmentDAO {
     } catch (SQLException e) {
       throw new DatabaseConnection("Database Connection Error: " + e.getMessage());
     }
+  }
 
+  public void updateAppointmentStatus(String id, AppointmentStatus status) {
+    if (isConnectionError) throw new DatabaseConnection("Database Connection Error");
+    if (id == null || id.isBlank()) throw new IllegalArgumentException("Appointment ID cannot be null or blank");
+    if (status == null) throw new IllegalArgumentException("Status cannot be null");
+
+    String query = "UPDATE appointments SET status = ?, updated_at = ? WHERE id = ?";
+
+    try (PreparedStatement ps = connection.prepareStatement(query)) {
+      ps.setString(1, status.name());
+      ps.setObject(2, Instant.now());
+      ps.setString(3, id);
+
+      int rowsAffected = ps.executeUpdate();
+      if (rowsAffected == 0) throw new QueryExecutionException("Failed to update appointment status");
+
+      System.out.println("Status Update Successfully");
+    } catch (SQLException e) {
+      throw new DatabaseConnection("Database Connection Error: " + e.getMessage());
+    }
   }
 
   public void updateAppointment(Appointment updatedAppointment) {
